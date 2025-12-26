@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency } from '@/lib/categoryUtils';
 import { cn } from '@/lib/utils';
+import { WalletIcon } from '@/components/icons/CategoryIcons';
 
 interface BalanceCardProps {
   total: number;
@@ -56,7 +57,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({ total, previousTotal, month }
             )}
           </div>
           <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm">
-            <Wallet className="w-7 h-7 md:w-8 md:h-8" />
+            <WalletIcon className="w-7 h-7 md:w-8 md:h-8" />
           </div>
         </div>
       </div>

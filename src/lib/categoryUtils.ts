@@ -1,9 +1,10 @@
 import { ExpenseCategory } from '@/types/expense';
-import { CreditCard, Zap, UtensilsCrossed, LucideIcon } from 'lucide-react';
+import { CardIcon, ServiceIcon, FoodIcon } from '@/components/icons/CategoryIcons';
+import React from 'react';
 
 interface CategoryConfig {
   label: string;
-  icon: LucideIcon;
+  icon: React.FC<{ className?: string }>;
   gradient: string;
   bgClass: string;
   iconBgClass: string;
@@ -12,21 +13,21 @@ interface CategoryConfig {
 export const categoryConfig: Record<ExpenseCategory, CategoryConfig> = {
   cards: {
     label: 'Tarjetas',
-    icon: CreditCard,
+    icon: CardIcon,
     gradient: 'gradient-cards',
     bgClass: 'bg-category-cards/10',
     iconBgClass: 'bg-category-cards',
   },
   services: {
     label: 'Servicios',
-    icon: Zap,
+    icon: ServiceIcon,
     gradient: 'gradient-services',
     bgClass: 'bg-category-services/10',
     iconBgClass: 'bg-category-services',
   },
   food: {
     label: 'Comida',
-    icon: UtensilsCrossed,
+    icon: FoodIcon,
     gradient: 'gradient-food',
     bgClass: 'bg-category-food/10',
     iconBgClass: 'bg-category-food',
