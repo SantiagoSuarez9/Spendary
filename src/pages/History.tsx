@@ -80,6 +80,7 @@ const History: React.FC = () => {
     { value: 'cards', label: 'Tarjetas' },
     { value: 'services', label: 'Servicios' },
     { value: 'food', label: 'Comida' },
+    { value: 'others', label: 'Otros' },
   ];
 
   return (

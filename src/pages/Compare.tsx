@@ -67,6 +67,7 @@ const Compare: React.FC = () => {
       cards: monthExpenses.filter(e => e.category === 'cards').reduce((s, e) => s + e.amount, 0),
       services: monthExpenses.filter(e => e.category === 'services').reduce((s, e) => s + e.amount, 0),
       food: monthExpenses.filter(e => e.category === 'food').reduce((s, e) => s + e.amount, 0),
+      others: monthExpenses.filter(e => e.category === 'others').reduce((s, e) => s + e.amount, 0),
       total: monthExpenses.reduce((s, e) => s + e.amount, 0),
     };
   }, [expenses, month1Data]);
@@ -80,6 +81,7 @@ const Compare: React.FC = () => {
       cards: monthExpenses.filter(e => e.category === 'cards').reduce((s, e) => s + e.amount, 0),
       services: monthExpenses.filter(e => e.category === 'services').reduce((s, e) => s + e.amount, 0),
       food: monthExpenses.filter(e => e.category === 'food').reduce((s, e) => s + e.amount, 0),
+      others: monthExpenses.filter(e => e.category === 'others').reduce((s, e) => s + e.amount, 0),
       total: monthExpenses.reduce((s, e) => s + e.amount, 0),
     };
   }, [expenses, month2Data]);

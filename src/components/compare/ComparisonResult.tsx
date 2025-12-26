@@ -24,7 +24,7 @@ const ComparisonResult: React.FC<ComparisonResultProps> = ({
   const isIncrease = totalDiff > 0;
   const isDecrease = totalDiff < 0;
 
-  const categories: ExpenseCategory[] = ['cards', 'services', 'food'];
+  const categories: ExpenseCategory[] = ['cards', 'services', 'food', 'others'];
 
   return (
     <motion.div

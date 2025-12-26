@@ -33,9 +33,10 @@ const Dashboard: React.FC = () => {
     cards: currentMonthExpenses.filter(e => e.category === 'cards').reduce((sum, e) => sum + e.amount, 0),
     services: currentMonthExpenses.filter(e => e.category === 'services').reduce((sum, e) => sum + e.amount, 0),
     food: currentMonthExpenses.filter(e => e.category === 'food').reduce((sum, e) => sum + e.amount, 0),
+    others: currentMonthExpenses.filter(e => e.category === 'others').reduce((sum, e) => sum + e.amount, 0),
   };
 
-  const totalCurrent = currentTotals.cards + currentTotals.services + currentTotals.food;
+  const totalCurrent = currentTotals.cards + currentTotals.services + currentTotals.food + currentTotals.others;
   const totalPrevious = previousMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   const currentMonthName = currentDate.toLocaleString('es', { month: 'long' });
@@ -79,7 +80,7 @@ const Dashboard: React.FC = () => {
         />
 
         {/* Category Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <CategoryCard
             title="Tarjetas"
             amount={currentTotals.cards}
@@ -100,6 +101,13 @@ const Dashboard: React.FC = () => {
             icon={categoryConfig.food.icon}
             gradient={categoryConfig.food.gradient}
             delay={0.3}
+          />
+          <CategoryCard
+            title="Otros"
+            amount={currentTotals.others}
+            icon={categoryConfig.others.icon}
+            gradient={categoryConfig.others.gradient}
+            delay={0.4}
           />
         </div>
 
