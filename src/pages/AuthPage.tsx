@@ -135,7 +135,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ mode }) => {
             <img 
               src="/Logo Spendary.png" 
               alt="Spendary Logo" 
-              className="w-12 h-12 object-contain"
+              className="w-20 h-20 object-contain"
             />
           </Link>
           <h1 className="text-2xl font-bold text-foreground">
