@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS public.expenses (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   amount DECIMAL(10, 2) NOT NULL CHECK (amount >= 0),
-  category TEXT NOT NULL CHECK (category IN ('cards', 'services', 'food')),
+  category TEXT NOT NULL CHECK (category IN ('cards', 'services', 'food', 'others')),
   description TEXT NOT NULL,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
   card_name TEXT,
@@ -218,7 +218,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON TABLE public.profiles IS 'Perfiles de usuario extendidos desde auth.users';
 COMMENT ON TABLE public.expenses IS 'Gastos registrados por los usuarios';
 
-COMMENT ON COLUMN public.expenses.category IS 'Categoría del gasto: cards (tarjetas), services (servicios), food (comida)';
+COMMENT ON COLUMN public.expenses.category IS 'Categoría del gasto: cards (tarjetas), services (servicios), food (comida), others (otros gastos misceláneos)';
 COMMENT ON COLUMN public.expenses.amount IS 'Monto del gasto en la moneda local';
 COMMENT ON COLUMN public.expenses.description IS 'Descripción detallada del gasto';
 COMMENT ON COLUMN public.expenses.card_name IS 'Nombre de la tarjeta cuando la categoría es "cards"';

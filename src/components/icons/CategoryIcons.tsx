@@ -37,6 +37,31 @@ export const ServiceIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+// Modern miscellaneous/others icon (box with items)
+export const OthersIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <circle cx="8" cy="8" r="1.5" fill="currentColor" opacity="0.7" />
+    <circle cx="16" cy="8" r="1.5" fill="currentColor" opacity="0.7" />
+    <circle cx="8" cy="16" r="1.5" fill="currentColor" opacity="0.7" />
+    <circle cx="16" cy="16" r="1.5" fill="currentColor" opacity="0.7" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" opacity="0.7" />
+  </svg>
+);
+
 // Modern food/restaurant icon
 export const FoodIcon: React.FC<IconProps> = ({ className }) => (
   <svg

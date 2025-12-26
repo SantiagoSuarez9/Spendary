@@ -1,4 +1,4 @@
-export type ExpenseCategory = 'cards' | 'services' | 'food';
+export type ExpenseCategory = 'cards' | 'services' | 'food' | 'others';
 
 export interface Expense {
   id: string;
@@ -16,6 +16,7 @@ export interface MonthlyTotal {
   cards: number;
   services: number;
   food: number;
+  others: number;
   total: number;
 }
 

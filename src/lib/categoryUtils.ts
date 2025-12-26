@@ -1,5 +1,5 @@
 import { ExpenseCategory } from '@/types/expense';
-import { CardIcon, ServiceIcon, FoodIcon } from '@/components/icons/CategoryIcons';
+import { CardIcon, ServiceIcon, FoodIcon, OthersIcon } from '@/components/icons/CategoryIcons';
 import React from 'react';
 
 interface CategoryConfig {
@@ -31,6 +31,13 @@ export const categoryConfig: Record<ExpenseCategory, CategoryConfig> = {
     gradient: 'gradient-food',
     bgClass: 'bg-category-food/10',
     iconBgClass: 'bg-category-food',
+  },
+  others: {
+    label: 'Otros',
+    icon: OthersIcon,
+    gradient: 'gradient-accent',
+    bgClass: 'bg-primary/10',
+    iconBgClass: 'bg-primary',
   },
 };
 

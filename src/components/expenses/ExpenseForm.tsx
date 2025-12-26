@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CalendarIcon, CreditCard, Zap, UtensilsCrossed, Check } from 'lucide-react';
+import { CalendarIcon, CreditCard, Zap, UtensilsCrossed, Grid3x3, Check } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -32,6 +32,7 @@ const categories: { value: ExpenseCategory; label: string; icon: React.ElementTy
   { value: 'cards', label: 'Tarjetas', icon: CreditCard },
   { value: 'services', label: 'Servicios', icon: Zap },
   { value: 'food', label: 'Comida', icon: UtensilsCrossed },
+  { value: 'others', label: 'Otros', icon: Grid3x3 },
 ];
 
 const ExpenseForm: React.FC = () => {
@@ -83,7 +84,7 @@ const ExpenseForm: React.FC = () => {
           {/* Category Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Categoría</Label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {categories.map(({ value, label, icon: Icon }) => (
                 <button
                   key={value}
