@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, PlusCircle, Calendar, BarChart3 } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Home, PlusCircle, Calendar, BarChart3, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const navItems = [
   { path: '/', label: 'Inicio', icon: Home },
@@ -15,8 +18,28 @@ const navItems = [
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: 'Sesión cerrada',
+        description: 'Has cerrado sesión correctamente',
+      });
+      navigate('/login');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo cerrar sesión',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
@@ -24,9 +47,11 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-accent flex items-center justify-center">
-              <span className="text-accent-foreground font-bold text-sm">S</span>
-            </div>
+            <img 
+              src="/Logo Spendary.png" 
+              alt="Spendary Logo" 
+              className="w-10 h-10 object-contain"
+            />
             <span className="font-bold text-xl text-foreground">Spendary</span>
           </Link>
 
@@ -47,8 +72,16 @@ const Navbar: React.FC = () => {
                 {item.label}
               </Link>
             ))}
-            <div className="ml-2 pl-2 border-l border-border">
+            <div className="ml-2 pl-2 border-l border-border flex items-center gap-2">
               <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -97,6 +130,13 @@ const Navbar: React.FC = () => {
                   {item.label}
                 </Link>
               ))}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-destructive hover:bg-destructive/10 transition-all duration-200 w-full"
+              >
+                <LogOut className="w-5 h-5" />
+                Cerrar sesión
+              </button>
             </div>
           </motion.div>
         )}

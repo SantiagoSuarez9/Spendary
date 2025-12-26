@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useExpenses } from '@/context/ExpenseContext';
-import { getMonthlyTotals, getExpensesByMonth } from '@/data/mockData';
 import { categoryConfig } from '@/lib/categoryUtils';
 import Layout from '@/components/layout/Layout';
 import BalanceCard from '@/components/dashboard/BalanceCard';
@@ -10,19 +9,25 @@ import RecentExpenses from '@/components/dashboard/RecentExpenses';
 import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown';
 
 const Dashboard: React.FC = () => {
-  const { expenses } = useExpenses();
-  const monthlyTotals = getMonthlyTotals(expenses);
+  const { expenses, loading, deleteExpense, refreshExpenses } = useExpenses();
   
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   
-  const currentMonthExpenses = getExpensesByMonth(expenses, currentMonth, currentYear);
-  const previousMonthExpenses = getExpensesByMonth(
-    expenses,
-    currentMonth === 0 ? 11 : currentMonth - 1,
-    currentMonth === 0 ? currentYear - 1 : currentYear
-  );
+  // Filtrar gastos del mes actual
+  const currentMonthExpenses = expenses.filter(e => {
+    const expenseDate = new Date(e.date);
+    return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+  });
+
+  // Filtrar gastos del mes anterior
+  const previousMonthExpenses = expenses.filter(e => {
+    const expenseDate = new Date(e.date);
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    return expenseDate.getMonth() === prevMonth && expenseDate.getFullYear() === prevYear;
+  });
 
   const currentTotals = {
     cards: currentMonthExpenses.filter(e => e.category === 'cards').reduce((sum, e) => sum + e.amount, 0),
@@ -35,6 +40,19 @@ const Dashboard: React.FC = () => {
 
   const currentMonthName = currentDate.toLocaleString('es', { month: 'long' });
   const capitalizedMonth = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-muted-foreground">Cargando gastos...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -87,7 +105,11 @@ const Dashboard: React.FC = () => {
 
         {/* Recent Expenses and Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RecentExpenses expenses={currentMonthExpenses} />
+          <RecentExpenses 
+            expenses={currentMonthExpenses} 
+            onDelete={deleteExpense}
+            onUpdate={() => refreshExpenses()}
+          />
           <CategoryBreakdown totals={currentTotals} />
         </div>
       </div>

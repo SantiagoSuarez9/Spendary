@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CalendarIcon, CreditCard, Zap, UtensilsCrossed, Check } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -14,8 +13,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useExpenses } from '@/context/ExpenseContext';
-import { ExpenseCategory } from '@/types/expense';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Expense, ExpenseCategory } from '@/types/expense';
+import { updateExpense as updateExpenseService } from '@/lib/supabaseService';
+import { useToast } from '@/hooks/use-toast';
 
 const expenseSchema = z.object({
   amount: z.string().min(1, 'El monto es requerido').refine(
@@ -34,9 +41,20 @@ const categories: { value: ExpenseCategory; label: string; icon: React.ElementTy
   { value: 'food', label: 'Comida', icon: UtensilsCrossed },
 ];
 
-const ExpenseForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { addExpense } = useExpenses();
+interface EditExpenseDialogProps {
+  expense: Expense | null;
+  open: boolean;
+  onClose: () => void;
+  onUpdate: (expense: Expense) => void;
+}
+
+const EditExpenseDialog: React.FC<EditExpenseDialogProps> = ({
+  expense,
+  open,
+  onClose,
+  onUpdate,
+}) => {
+  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<ExpenseCategory>('food');
   const [date, setDate] = useState<Date>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,15 +63,29 @@ const ExpenseForm: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
+    setValue,
   } = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
   });
 
+  useEffect(() => {
+    if (expense) {
+      setSelectedCategory(expense.category);
+      setDate(new Date(expense.date));
+      setValue('amount', expense.amount.toString());
+      setValue('description', expense.description);
+      setValue('cardName', expense.cardName || '');
+    }
+  }, [expense, setValue]);
+
   const onSubmit = async (data: ExpenseFormData) => {
+    if (!expense) return;
+    
     setIsSubmitting(true);
     
     try {
-      await addExpense({
+      const updatedExpense = await updateExpenseService(expense.id, {
         amount: Number(data.amount),
         date: format(date, 'yyyy-MM-dd'),
         category: selectedCategory,
@@ -61,25 +93,35 @@ const ExpenseForm: React.FC = () => {
         cardName: selectedCategory === 'cards' ? data.cardName : undefined,
       });
 
-      navigate('/');
+      onUpdate(updatedExpense);
+      toast({
+        title: 'Éxito',
+        description: 'Gasto actualizado correctamente',
+      });
+      onClose();
+      reset();
     } catch (error) {
-      // El error ya se muestra en el Context
+      toast({
+        title: 'Error',
+        description: 'No se pudo actualizar el gasto',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="max-w-lg mx-auto"
-    >
-      <div className="bg-card rounded-2xl shadow-card p-6 md:p-8">
-        <h2 className="text-xl font-bold text-foreground mb-6">Nuevo gasto</h2>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Editar gasto</DialogTitle>
+          <DialogDescription>
+            Modifica los detalles del gasto
+          </DialogDescription>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Category Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Categoría</Label>
@@ -200,28 +242,38 @@ const ExpenseForm: React.FC = () => {
           </div>
 
           {/* Submit Button */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-12 text-base font-semibold gradient-accent hover:opacity-90 transition-opacity"
-          >
-            {isSubmitting ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full"
-              />
-            ) : (
-              <>
-                <Check className="w-5 h-5 mr-2" />
-                Guardar gasto
-              </>
-            )}
-          </Button>
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 gradient-accent hover:opacity-90"
+            >
+              {isSubmitting ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full"
+                />
+              ) : (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  Guardar cambios
+                </>
+              )}
+            </Button>
+          </div>
         </form>
-      </div>
-    </motion.div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default ExpenseForm;
+export default EditExpenseDialog;

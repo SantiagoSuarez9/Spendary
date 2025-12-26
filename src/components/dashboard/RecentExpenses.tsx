@@ -1,15 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Trash2, Pencil } from 'lucide-react';
 import { formatCurrency, formatDateShort, categoryConfig } from '@/lib/categoryUtils';
 import { Expense } from '@/types/expense';
 import { cn } from '@/lib/utils';
+import EditExpenseDialog from '@/components/expenses/EditExpenseDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface RecentExpensesProps {
   expenses: Expense[];
+  onDelete?: (id: string) => void;
+  onUpdate?: (expense: Expense) => void;
 }
 
-const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses }) => {
+const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, onDelete, onUpdate }) => {
   const recentExpenses = expenses.slice(0, 5);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => {
+    if (onDelete) {
+      onDelete(id);
+    }
+    setDeletingId(null);
+  };
+
+  const handleUpdate = (expense: Expense) => {
+    if (onUpdate) {
+      onUpdate(expense);
+    }
+    setEditingExpense(null);
+  };
 
   return (
     <motion.div
@@ -43,15 +73,65 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses }) => {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDateShort(expense.date)} · {config.label}
+                  {expense.cardName && ` · ${expense.cardName}`}
                 </p>
               </div>
-              <p className="text-sm font-semibold text-foreground">
-                {formatCurrency(expense.amount)}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {formatCurrency(expense.amount)}
+                </p>
+                {onUpdate && (
+                  <button
+                    onClick={() => setEditingExpense(expense)}
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                    title="Editar gasto"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => setDeletingId(expense.id)}
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    title="Eliminar gasto"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </motion.div>
           );
         })}
       </div>
+
+      {/* Edit Dialog */}
+      <EditExpenseDialog
+        expense={editingExpense}
+        open={!!editingExpense}
+        onClose={() => setEditingExpense(null)}
+        onUpdate={handleUpdate}
+      />
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar gasto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El gasto será eliminado permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deletingId && handleDelete(deletingId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 };

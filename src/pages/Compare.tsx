@@ -4,9 +4,45 @@ import { ArrowLeftRight } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import ComparisonResult from '@/components/compare/ComparisonResult';
 import { useExpenses } from '@/context/ExpenseContext';
-import { getAvailableMonths, getExpensesByMonth } from '@/data/mockData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MonthlyTotal } from '@/types/expense';
+import { MonthlyTotal, Expense } from '@/types/expense';
+
+// Función para obtener meses disponibles desde los gastos
+const getAvailableMonths = (expenses: Expense[]) => {
+  const monthsMap = new Map<string, { month: number; year: number; label: string }>();
+  
+  expenses.forEach(expense => {
+    const date = new Date(expense.date);
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const key = `${year}-${month}`;
+    
+    if (!monthsMap.has(key)) {
+      const monthName = date.toLocaleString('es', { month: 'long' });
+      const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+      monthsMap.set(key, {
+        month,
+        year,
+        label: `${capitalizedMonth} ${year}`,
+      });
+    }
+  });
+  
+  return Array.from(monthsMap.entries())
+    .map(([value, data]) => ({ value, ...data }))
+    .sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    });
+};
+
+// Función para filtrar gastos por mes
+const getExpensesByMonth = (expenses: Expense[], month: number, year: number) => {
+  return expenses.filter(expense => {
+    const date = new Date(expense.date);
+    return date.getMonth() === month && date.getFullYear() === year;
+  });
+};
 
 const Compare: React.FC = () => {
   const { expenses } = useExpenses();
