@@ -105,7 +105,8 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = '';
 
 -- Trigger para profiles
 DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
@@ -133,7 +134,8 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = '';
 
 -- Trigger para crear perfil automáticamente
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
@@ -147,7 +149,9 @@ CREATE TRIGGER on_auth_user_created
 -- =============================================
 
 -- Vista para ver gastos con información agregada
-CREATE OR REPLACE VIEW public.expenses_summary AS
+-- Usa SECURITY INVOKER para respetar las políticas RLS del usuario que consulta
+CREATE OR REPLACE VIEW public.expenses_summary
+WITH (security_invoker = true) AS
 SELECT 
   user_id,
   DATE_TRUNC('month', date) AS month,
@@ -165,6 +169,7 @@ GROUP BY user_id, DATE_TRUNC('month', date), category;
 -- =============================================
 
 -- Función para obtener resumen mensual por categoría
+-- Usa SECURITY INVOKER para respetar las políticas RLS del usuario que consulta
 CREATE OR REPLACE FUNCTION get_monthly_summary(
   p_user_id UUID,
   p_month DATE
@@ -185,9 +190,11 @@ BEGIN
     AND DATE_TRUNC('month', e.date) = DATE_TRUNC('month', p_month)
   GROUP BY e.category;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY INVOKER
+SET search_path = '';
 
 -- Función para obtener gastos totales por mes
+-- Usa SECURITY INVOKER para respetar las políticas RLS del usuario que consulta
 CREATE OR REPLACE FUNCTION get_total_by_month(
   p_user_id UUID,
   p_year INTEGER
@@ -209,7 +216,8 @@ BEGIN
   GROUP BY EXTRACT(MONTH FROM e.date)
   ORDER BY month;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY INVOKER
+SET search_path = '';
 
 -- =============================================
 -- COMENTARIOS EN LAS TABLAS
