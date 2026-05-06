@@ -1,7 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/categoryUtils';
+import { getBudgetStatus } from '@/lib/budgetUtils';
 
 interface CategoryCardProps {
   title: string;
@@ -9,6 +9,8 @@ interface CategoryCardProps {
   icon: React.FC<{ className?: string }>;
   gradient: string;
   delay?: number;
+  budgetLimit: number | null;
+  currentSpending: number;
 }
 
 const CategoryCard: React.FC<CategoryCardProps> = ({
@@ -17,27 +19,28 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   icon: Icon,
   gradient,
   delay = 0,
+  budgetLimit,
+  currentSpending,
 }) => {
+  const budgetStatus = budgetLimit ? getBudgetStatus({ budgetLimit } as any, currentSpending) : null;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      className="relative overflow-hidden rounded-2xl bg-card shadow-card hover:shadow-card-hover transition-shadow duration-300"
-    >
-      <div className={cn('absolute inset-0 opacity-5', gradient)} />
+    <motion.div /* ... */ >
       <div className="relative p-5 md:p-6">
         <div className="flex items-start justify-between">
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl md:text-3xl font-bold text-foreground">
-              {formatCurrency(amount)}
-            </p>
-          </div>
-          <div className={cn('p-3 rounded-xl', gradient)}>
-            <Icon className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />
-          </div>
+          {/* ... (título y monto) */}
         </div>
+        {budgetStatus && (
+          <div className="mt-4">
+            <div className="flex justify-between items-center text-xs mb-1">
+              <span className="text-muted-foreground">Presupuesto</span>
+              <span className={`font-medium ${budgetStatus.isOverBudget ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {formatCurrency(currentSpending)} / {formatCurrency(budgetLimit!)}
+              </span>
+            </div>
+            <Progress value={budgetStatus.percentage} className="h-2" />
+          </div>
+        )}
       </div>
     </motion.div>
   );
